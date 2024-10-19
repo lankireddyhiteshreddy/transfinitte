@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const correctedCodeSection = document.getElementById('correctedCodeSection');
     const correctedCode = document.getElementById('correctedCode');
     const copyCodeButton = document.getElementById('copyCodeButton');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    const modeText = document.getElementById('modeText');
+    const toggleSidebarButton = document.getElementById('toggleSidebar');
+    const chatHistory = document.getElementById('chatHistory');
 
     analysisType.addEventListener('change', () => {
         if (analysisType.value === 'code') {
@@ -20,6 +25,41 @@ document.addEventListener('DOMContentLoaded', () => {
             githubInputSection.style.display = 'block';
         }
     });
+
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        updateModeText();
+    });
+
+    darkModeToggle.addEventListener('mouseover', () => {
+        darkModeToggle.textContent = body.classList.contains('dark-mode') ? '🌞' : '🌜';
+    });
+
+    darkModeToggle.addEventListener('mouseout', () => {
+        updateDarkModeButton();
+    });
+
+    function updateDarkModeButton() {
+        if (body.classList.contains('dark-mode')) {
+            darkModeToggle.textContent = '🌜';
+            darkModeToggle.style.backgroundColor = '#121212';
+        } else {
+            darkModeToggle.textContent = '🌞';
+            darkModeToggle.style.backgroundColor = '#F5F5F5';
+        }
+    }
+
+    function updateModeText() {
+        if (body.classList.contains('dark-mode')) {
+            modeText.textContent = 'Dark Mode  ';
+        } else {
+            modeText.textContent = 'Light Mode ';
+        }
+    }
+
+    // Set initial state
+    updateDarkModeButton();
+    updateModeText();
 
     analyzeButton.addEventListener('click', async () => {
         let data;
@@ -148,4 +188,64 @@ document.addEventListener('DOMContentLoaded', () => {
             'pattern': '\\.\\.\/'
         }
     };
+
+    document.getElementById('analyzeButton').addEventListener('click', function() {
+        // Add your analysis logic here
+        const analysisType = document.getElementById('analysisType').value;
+        const language = document.getElementById('languageSelect').value;
+        const code = document.getElementById('codeInput').value;
+        const githubUrl = document.getElementById('githubInput').value;
+
+        // Display results in the output section
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `<p>Analyzing ${analysisType} in ${language}...</p>`;
+        
+        // Simulate analysis result
+        setTimeout(() => {
+            resultsDiv.innerHTML += `<p>Vulnerabilities found: None</p>`;
+        }, 2000);
+    });
+
+    const newConversationBtn = document.querySelector('.new-conversation');
+    const conversationList = document.querySelector('.conversation-list');
+    const messagesContainer = document.querySelector('.messages');
+
+    let conversationCount = 0;
+    let activeConversation = null;
+
+    newConversationBtn.addEventListener('click', () => {
+        conversationCount++;
+        const newConversation = document.createElement('div');
+        newConversation.className = 'conversation';
+        newConversation.textContent = `Conversation ${conversationCount}`;
+        conversationList.appendChild(newConversation);
+
+        newConversation.addEventListener('click', () => {
+            switchConversation(newConversation);
+        });
+
+        switchConversation(newConversation);
+    });
+
+    function switchConversation(conversation) {
+        if (activeConversation) {
+            activeConversation.classList.remove('active');
+        }
+        activeConversation = conversation;
+        activeConversation.classList.add('active');
+        loadMessagesForConversation(activeConversation.textContent);
+    }
+
+    function loadMessagesForConversation(conversationName) {
+        messagesContainer.innerHTML = `<p>Loading messages for ${conversationName}...</p>`;
+        // Simulate loading messages
+        setTimeout(() => {
+            messagesContainer.innerHTML = `<p>No messages yet in ${conversationName}.</p>`;
+        }, 500);
+    }
+
+    toggleSidebarButton.addEventListener('click', () => {
+        chatHistory.classList.toggle('closed');
+        chatHistory.classList.toggle('open');
+    });
 });
