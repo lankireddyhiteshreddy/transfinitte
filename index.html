@@ -8,43 +8,31 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="sidebar-toggle">
+        <button id="toggleSidebar" class="toggle-button">☰</button>
+    </div>
     <div class="container">
-        <header>
-            <h1>Intelligent Code Vulnerability Checker</h1>
-            <p>Analyze your code or GitHub repository for potential security vulnerabilities using advanced AI techniques.</p>
-        </header>
-        <main>
-            <div class="input-section">
-                <label for="analysisType">Select Analysis Type:</label>
-                <select id="analysisType">
-                    <option value="code">Code Snippet</option>
-                    <option value="github">GitHub Repository</option>
-                </select>
-                
-                <div id="codeInputSection">
-                    <label for="languageSelect">Select Language:</label>
-                    <select id="languageSelect">
-                        <option value="javascript">JavaScript</option>
-                        <option value="python">Python</option>
-                        <option value="ruby">Ruby</option>
-                        <option value="java">Java</option>
-                        <option value="php">PHP</option>
-                        <option value="csharp">C#</option>
-                        <option value="go">Go</option>
-                    </select>
-                    <label for="codeInput">Enter Your Code:</label>
-                    <textarea id="codeInput" placeholder="Paste your code here..." rows="10"></textarea>
-                </div>
-                
-                <div id="githubInputSection" style="display: none;">
-                    <label for="githubInput">Enter GitHub Repository URL:</label>
-                    <input type="text" id="githubInput" placeholder="https://github.com/username/repository">
-                </div>
-                
-                <button id="analyzeButton">Analyze Vulnerabilities</button>
+        <div class="chat-history" id="chatHistory">
+            <button class="new-conversation">+ New Conversation</button>
+            <div class="conversation-list">
+                <button class="conversation" id="conversation1">Conversation 1</button>
+                <!-- New conversations will be dynamically added here -->
             </div>
+            <div class="messages" id="messages">
+                <!-- Chat history for the active conversation will be loaded here -->
+            </div>
+        </div>
+        <div class="main-content">
+            <header>
+                <h1>Intelligent Code Vulnerability Checker</h1>
+                <div class="dark-mode-container">
+                    <span id="modeText" class="mode-text">Light Mode</span>
+                    <button id="darkModeToggle" class="dark-mode-toggle">🌞</button>
+                </div>
+            </header>
             <div class="output-section">
                 <h2>Analysis Results:</h2>
                 <div id="results"></div>
@@ -54,10 +42,45 @@
                     <button id="copyCodeButton">Copy Corrected Code</button>
                 </div>
             </div>
-        </main>
-        <footer>
-            <p>Powered by AI and advanced vulnerability detection algorithms.</p>
-        </footer>
+            <div class="input-section">
+                <div class="analysis-options">
+                    <div class="analysis-type">
+                        <select id="analysisType">
+                            <option disabled selected hidden>Select Analysis Type</option>
+                            <option value="code">Code Snippet</option>
+                            <option value="github">GitHub Repository</option>
+                        </select>
+                    </div>
+                    <div class="language-select">
+                        <select id="languageSelect">
+                            <option disabled selected hidden>Select Language</option>
+                            <option>JavaScript</option>
+                            <option>Python</option>
+                            <option>Java</option>
+                            <option>C++</option>
+                            <option>C#</option>
+                            <option>Swift</option>
+                            <option>Kotlin</option>
+                            <!-- Add more languages as needed -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="input-heading">
+                    <label for="codeInput">Enter Your Code:</label>
+                </div>
+                <textarea id="codeInput" placeholder="Paste your code here..." rows="10"></textarea>
+                
+                <div id="githubInputContainer" class="github-input" style="display: none;">
+                    <label for="githubInput">Enter GitHub Repository URL:</label>
+                    <input type="text" id="githubInput" placeholder="https://github.com/user/repo">
+                </div>
+                
+                <div class="analyze-container">
+                    <button id="analyzeButton" class="analyze-button">Analyze Vulnerabilities</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
