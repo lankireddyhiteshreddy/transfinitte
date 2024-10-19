@@ -1,80 +1,205 @@
+*{
+    font-family: 'Poppins', sans-serif;
+}
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    display: flex;
+    height: 100vh;
+    margin: 0;
+   
+    transition: background-color 0.5s, color 0.5s;
+}
+
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
 }
 
 .container {
-    background-color: #f4f4f4;
+    display: flex;
+    width: 100%;
+}
+
+.chat-history {
+    width: 25%;
+    background-color: #f5f5f5;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.3s ease;
+    overflow: hidden; /* Hide overflow for the entire chat-history */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+body.dark-mode .chat-history {
+    background-color: #121212;
+    border-right: 1px solid #ffffff; /* Add white line in dark mode */
+}
+
+.new-conversation {
+    background-color: #6a1b9a;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 20px; /* Rounder edges */
+    font-weight: bold; /* Bold text */
+    transition: transform 0.2s ease;
+}
+
+.new-conversation:hover {
+    transform: scale(1.05); /* Slightly increase size on hover */
+}
+
+.messages {
+    overflow-y: auto;
+    height: calc(100vh - 120px);
+}
+
+.main-content {
+    width: 75%;
     padding: 20px;
-    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background-color 0.5s;
+}
+
+body.dark-mode .main-content {
+    background-color: #121212;
 }
 
 header {
     text-align: center;
-    margin-bottom: 20px;
 }
 
-h1 {
-    color: #2c3e50;
+.output-section {
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
-.input-section, .output-section {
-    margin-bottom: 20px;
+.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
+.input-heading {
+    font-weight: bold;
+    color: #000; /* Default color for light mode */
 }
 
-select, textarea, input[type="text"] {
+body.dark-mode .input-heading {
+    color: #121212; /* Dark color for headings in dark mode */
+}
+
+select, textarea, input {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
+    padding: 10px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    transition: background-color 0.5s, color 0.5s, transform 0.3s;
+    border-radius: 5px;
 }
 
-button {
-    background-color: #3498db;
-    color: white;
-    padding: 10px 15px;
+textarea#codeInput {
+    height: 100px;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+select:hover, textarea:hover, input:hover {
+    transform: scale(1.02); /* Slightly increase size on hover */
+}
+
+.conversation-list {
+    overflow-y: auto; /* Enable vertical scrolling */
+    flex-grow: 1; /* Allow it to take available space */
+    margin-bottom: 60px; /* Space for the dark mode button */
+}
+
+.conversation {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
     border: none;
-    border-radius: 3px;
+    background-color: #d3d3d3; /* Grey color */
     cursor: pointer;
-    margin-right: 10px;
+    text-align: left;
+    border-radius: 10px;
+    font-size: 1.1em;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
 }
 
-button:hover {
-    background-color: #2980b9;
+.conversation:hover {
+    background-color: #c0c0c0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Translucent silhouette */
 }
 
-#results, #correctedCode {
-    background-color: white;
-    padding: 15px;
-    border-radius: 3px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+.conversation.active {
+    background-color: #b0b0b0;
 }
 
-footer {
-    text-align: center;
-    font-size: 0.9em;
-    color: #7f8c8d;
+body.dark-mode label, 
+body.dark-mode select, 
+body.dark-mode textarea, 
+body.dark-mode input {
+    background-color: #121212;
+    color: #ffffff;
+    border: 1px solid #444;
+}
+
+.dark-mode-toggle {
+    position: relative;
+    bottom: 48px;
+    left:-10px;
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    background-color: #f5f5f5; /* Light mode background */
+    color: #000; /* Light mode text color */
+    border: none;
+    cursor: pointer;
+    font-size: 1.8em;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+body.dark-mode .dark-mode-toggle {
+    background-color: #121212; /* Dark mode background */
+    color: #fff; /* Dark mode text color */
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+    content: "🌜";
 }
 
 .vulnerability-critical {
-    background-color: #ff9999;
+    background-color: #ffffff; /* Default light mode color */
+    color: #000000;
 }
 
 .vulnerability-high {
-    background-color: #ffcccc;
+    background-color: #ffffff; /* Default light mode color */
+    color: #000000;
 }
 
 .vulnerability-medium {
-    background-color: #ffffcc;
+    background-color: #ffffff; /* Default light mode color */
+    color: #000000;
+}
+
+body.dark-mode .vulnerability-medium {
+    background-color: #000000; /* Black background in dark mode */
+    color: #ffffff; /* White text in dark mode */
 }
 
 .vulnerability-low {
@@ -107,4 +232,127 @@ footer {
 
 .vulnerability-highlight {
     background-color: #ffcccc;
+}
+
+.dark-mode-container {
+    position: absolute;
+    bottom: -50px;
+    left: -600px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mode-text {
+    margin-right: 10px; /* Space between text and button */
+    margin-bottom: 100px;
+    margin-left: 100px;
+    font-size: 1.2em;
+    font-weight: bold; /* Make text bold */
+    color: #000; /* Default color for light mode */
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .mode-text {
+    color: #fff; /* Color for dark mode */
+}
+
+.analysis-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.analysis-type, .language-select {
+    flex: 1;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    color: #333;
+    appearance: none; /* Remove default styling */
+    position: relative;
+}
+
+body.dark-mode select {
+    background-color: #333;
+    color: #fff;
+}
+
+.analyze-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.analyze-button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: #6a1b9a; /* Light mode color */
+    color: #fff;
+}
+
+.analyze-button:hover {
+    transform: scale(1.05);
+}
+
+body.dark-mode .analyze-button {
+    background-color: #333; /* Dark mode color */
+    color: #fff;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+}
+
+.toggle-button {
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.toggle-button:hover {
+    transform: scale(1.1);
+}
+
+.chat-history.closed {
+    transform: translateX(-100%);
+}
+
+.chat-history.open .sidebar-toggle {
+    left: calc(25% - 40px); /* Adjust based on sidebar width */
+}
+
+.chat-history.open .toggle-button {
+    position: relative;
+    top: 0;
+    left: auto;
+    margin-left: 10px;
 }
