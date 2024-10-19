@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Code Vulnerability Checker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Intelligent Code Vulnerability Checker</h1>
+            <p>Analyze your code or GitHub repository for potential security vulnerabilities using advanced AI techniques.</p>
+        </header>
+        <main>
+            <div class="input-section">
+                <label for="analysisType">Select Analysis Type:</label>
+                <select id="analysisType">
+                    <option value="code">Code Snippet</option>
+                    <option value="github">GitHub Repository</option>
+                </select>
+                
+                <div id="codeInputSection">
+                    <label for="languageSelect">Select Language:</label>
+                    <select id="languageSelect">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="java">Java</option>
+                        <option value="php">PHP</option>
+                        <option value="csharp">C#</option>
+                        <option value="go">Go</option>
+                    </select>
+                    <label for="codeInput">Enter Your Code:</label>
+                    <textarea id="codeInput" placeholder="Paste your code here..." rows="10"></textarea>
+                </div>
+                
+                <div id="githubInputSection" style="display: none;">
+                    <label for="githubInput">Enter GitHub Repository URL:</label>
+                    <input type="text" id="githubInput" placeholder="https://github.com/username/repository">
+                </div>
+                
+                <button id="analyzeButton">Analyze Vulnerabilities</button>
+            </div>
+            <div class="output-section">
+                <h2>Analysis Results:</h2>
+                <div id="results"></div>
+                <div id="correctedCodeSection" style="display: none;">
+                    <h3>Corrected Code:</h3>
+                    <pre><code id="correctedCode"></code></pre>
+                    <button id="copyCodeButton">Copy Corrected Code</button>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <p>Powered by AI and advanced vulnerability detection algorithms.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
