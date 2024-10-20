@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const githubInputSection = document.getElementById('githubInputSection');
     const codeInput = document.getElementById('codeInput');
     const githubInput = document.getElementById('githubInput');
-    const languageSelect = document.getElementById('languageSelect');
     const analyzeButton = document.getElementById('analyzeButton');
     const results = document.getElementById('results');
     const correctedCodeSection = document.getElementById('correctedCodeSection');
@@ -65,12 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let data;
         if (analysisType.value === 'code') {
             const code = codeInput.value.trim();
-            const language = languageSelect.value;
             if (!code) {
                 alert('Please enter some code to analyze.');
                 return;
             }
-            data = { code, language };
+            data = { code };
         } else {
             const repoUrl = githubInput.value.trim();
             if (!repoUrl) {
@@ -107,6 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatResults(analysis, type) {
         let html = '<h3>Vulnerability Analysis Results:</h3>';
+        
+        // Always display the detected language
+        html += `<p>Detected Language: <strong>${analysis.language}</strong></p>`;
+        
         html += `<p>Overall Risk: <strong class="vulnerability-${analysis.overall_risk.toLowerCase()}">${analysis.overall_risk}</strong></p>`;
         
         if (type === 'code') {
@@ -192,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('analyzeButton').addEventListener('click', function() {
         // Add your analysis logic here
         const analysisType = document.getElementById('analysisType').value;
-        const language = document.getElementById('languageSelect').value;
         const code = document.getElementById('codeInput').value;
         const githubUrl = document.getElementById('githubInput').value;
 
