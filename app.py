@@ -12,6 +12,8 @@ import difflib
 import base64
 from github import Github
 import time
+import subprocess
+import tempfile
 
 app = Flask(__name__)
 CORS(app)
@@ -83,12 +85,45 @@ def rule_based_analysis(code):
             })
     return vulnerabilities
 
-def correct_vulnerabilities(code, vulnerabilities):
+def detect_language_by_keywords(code: str) -> str:
+    # Dictionary of languages and their unique keywords or patterns
+    language_patterns = {
+        "Python": [r"\bdef\b", r"\bprint\b", r"\bimport\b", r":\s*$", r"\bclass\b"],
+        "JavaScript": [r"\bfunction\b", r"\bconsole\.log\b", r"\bvar\b", r"\blet\b", r"\bconst\b"],
+        "C++": [r"#include", r"\bstd::\b", r"\bcout\b", r"\bcin\b", r"\bint main\b"],
+        "C": [r"#include", r"\bprintf\b", r"\bscanf\b", r"\bint main\b"],
+        "HTML": [r"<!DOCTYPE html>", r"<html>", r"<head>", r"<body>", r"<title>"],
+        "SQL": [r"\bSELECT\b", r"\bFROM\b", r"\bWHERE\b", r"\bINSERT\b", r"\bUPDATE\b", r"\bDELETE\b"],
+        "Bash": [r"#!/bin/bash", r"echo", r"fi", r"if \[", r"else", r"for"],
+        "Rust": [r"\bfn\b", r"\blet mut\b", r"\bprintln!\b", r"\bextern crate\b", r"\bimpl\b"]
+    }
+
+    detected_language = "Language not detected."
+    for language, patterns in language_patterns.items():
+            for pattern in patterns:
+                if re.search(pattern, code):
+                    detected_language = language
+                    break
+            if detected_language != "Language not detected.":
+                break
+    print(f"Detected language: {detected_language}")  # Debugging line
+    return detected_language
+
+def correct_vulnerabilities(code, vulnerabilities, language):
     try:
-        tree = ast.parse(code)
-        corrector = VulnerabilityCorrector(vulnerabilities)
-        corrected_tree = corrector.visit(tree)
-        return ast.unparse(corrected_tree)
+        if language.lower() == 'python':
+            tree = ast.parse(code)
+            corrector = VulnerabilityCorrector(vulnerabilities)
+            corrected_tree = corrector.visit(tree)
+            return ast.unparse(corrected_tree)
+        elif language.lower() == 'javascript':
+            # Implement JavaScript-specific corrections
+            return code  # Placeholder
+        elif language.lower() == 'cpp':
+            # Implement C++-specific corrections
+            return code  # Placeholder
+        else:
+            return code
     except Exception as e:
         app.logger.error(f"Error correcting vulnerabilities: {str(e)}")
         return code
@@ -112,12 +147,33 @@ class VulnerabilityCorrector(ast.NodeTransformer):
 
     # Add more visit methods for other vulnerability types
 
-def correct_code(code, vulnerabilities):
+def run_formatter(formatter, code):
     try:
-        # First, correct vulnerabilities
-        code = correct_vulnerabilities(code, vulnerabilities)
-        # Then, format the code
-        code = autopep8.fix_code(code)
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as tmp_file:
+            tmp_file.write(code.encode('utf-8'))
+            tmp_file.flush()
+            subprocess.run([formatter, tmp_file.name], check=True)
+            with open(tmp_file.name, 'r') as f:
+                formatted_code = f.read()
+        return formatted_code
+    except subprocess.CalledProcessError as e:
+        app.logger.error(f"Formatter failed: {e}")
+        return code
+
+def correct_code(code, vulnerabilities, language):
+    try:
+        # Step 1: Correct vulnerabilities
+        code = correct_vulnerabilities(code, vulnerabilities, language)
+
+        # Step 2: Format the code based on the language
+        if language.lower() == 'python':
+            code = autopep8.fix_code(code)
+        elif language.lower() == 'javascript':
+            code = run_formatter('prettier', code)
+        elif language.lower() == 'cpp':
+            code = run_formatter('clang-format', code)
+        # Add more languages/formats as needed
+
         return code
     except Exception as e:
         app.logger.error(f"Error correcting code: {str(e)}")
@@ -132,16 +188,18 @@ def analyze_code():
     try:
         data = request.json
         code = data.get('code', '')
-        language = data.get('language', '')
 
         if not code:
             return jsonify({"error": "Please provide code to analyze."}), 400
+
+        # Detect language based on code
+        detected_language = detect_language_by_keywords(code)
 
         # Rule-based analysis
         rule_based_result = rule_based_analysis(code)
 
         # Correct the code
-        corrected_code = correct_code(code, rule_based_result)
+        corrected_code = correct_code(code, rule_based_result, detected_language)
 
         # ML-based analysis
         ml_result = classifier(corrected_code)[0]
@@ -171,73 +229,9 @@ def analyze_code():
             "original_code": code,
             "corrected_code": corrected_code,
             "diff": diff,
-            "language": language
+            "language": detected_language
         }
-
-        return jsonify({"analysis": analysis})
-    except Exception as e:
-        app.logger.error(f"Unexpected error: {str(e)}")
-        app.logger.error(traceback.format_exc())
-        return jsonify({"error": f"Unexpected error: {str(e)}", "traceback": traceback.format_exc()}), 500
-
-@app.route('/analyze_github', methods=['POST'])
-def analyze_github():
-    try:
-        data = request.json
-        repo_url = data.get('repoUrl', '')
-
-        if not repo_url:
-            return jsonify({"error": "Please provide a GitHub repository URL."}), 400
-
-        # Extract owner and repo name from the URL
-        parts = repo_url.split('/')
-        owner = parts[-2]
-        repo_name = parts[-1]
-
-        # Initialize GitHub client
-        g = Github(GITHUB_API_TOKEN)
-        repo = g.get_repo(f"{owner}/{repo_name}")
-
-        # Analyze each file in the repository
-        vulnerabilities = []
-        total_files = sum(1 for _ in repo.get_contents(""))
-        analyzed_files = 0
-
-        for content_file in repo.get_contents(""):
-            if content_file.type == "file":
-                file_content = base64.b64decode(content_file.content).decode('utf-8')
-                file_vulnerabilities = rule_based_analysis(file_content)
-                if file_vulnerabilities:
-                    vulnerabilities.append({
-                        "file": content_file.path,
-                        "vulnerabilities": file_vulnerabilities
-                    })
-            analyzed_files += 1
-            time.sleep(0.1)  # Add a small delay to avoid rate limiting
-
-        # Determine overall risk
-        all_risk_levels = [vuln['risk_level'] for file_vuln in vulnerabilities for vuln in file_vuln['vulnerabilities']]
-        if 'Critical' in all_risk_levels:
-            overall_risk = 'Critical'
-        elif 'High' in all_risk_levels:
-            overall_risk = 'High'
-        elif 'Medium' in all_risk_levels:
-            overall_risk = 'Medium'
-        else:
-            overall_risk = 'Low'
-
-        # Sort vulnerabilities by severity score
-        for file_vuln in vulnerabilities:
-            file_vuln['vulnerabilities'].sort(key=lambda x: x['severity_score'], reverse=True)
-
-        # Combine results
-        analysis = {
-            "overall_risk": overall_risk,
-            "vulnerabilities": vulnerabilities,
-            "total_files": total_files,
-            "analyzed_files": analyzed_files
-        }
-
+        print(f"Analysis response: {analysis}")  # Debugging line
         return jsonify({"analysis": analysis})
     except Exception as e:
         app.logger.error(f"Unexpected error: {str(e)}")
